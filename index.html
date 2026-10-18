@@ -705,20 +705,17 @@ document.getElementById("ogImage").setAttribute("content", CardArt.cover);
      Shown on the sender's own openings of the invitation (any opening
      that carries no guest name). A link addressed to a guest
      (?to= / ?pa=) opens clean — the guest never sees this button.
-     The process: type the name in English and/or Punjabi, press Done,
+     The process: type the name in English, press Done,
      and only then does that guest's own copyable link appear. -->
 <button class="pers-btn" id="persBtn" type="button" style="display:none">Address it to a guest</button>
 
 <div class="pers-overlay" id="persOverlay">
   <div class="pers-card" role="dialog" aria-modal="true" aria-labelledby="persTitle">
     <h2 class="pers-title" id="persTitle">Who is this invitation for?</h2>
-    <p class="pers-note" id="persNote">Type the guest&rsquo;s name in English, in Punjabi, or in both. The envelope is addressed in the language the guest opens &mdash; the English name in the English view, the Punjabi name in the Punjabi view.</p>
+    <p class="pers-note" id="persNote">Type the guest&rsquo;s name in English. The envelope is addressed to them by that name in both the English and Punjabi views.</p>
     <label class="pers-label" id="persEnLabel" for="persInputEn">Guest&rsquo;s name in English</label>
     <input class="pers-input" id="persInputEn" type="text" autocomplete="off" autocapitalize="words"
            placeholder="Name in English" aria-label="Guest&rsquo;s name in English" />
-    <label class="pers-label" id="persPaLabel" for="persInputPa">Guest&rsquo;s name in Punjabi</label>
-    <input class="pers-input" id="persInputPa" type="text" autocomplete="off"
-           placeholder="Name in Punjabi" aria-label="Guest&rsquo;s name in Punjabi" />
     <span class="pers-label" id="persSideLabel">Family side</span>
     <div class="pers-side" role="group" aria-label="Family side">
       <button type="button" id="persSideDadka" aria-pressed="true">Dadka</button>
@@ -736,7 +733,7 @@ document.getElementById("ogImage").setAttribute("content", CardArt.cover);
       <div class="pv-line pv-pa" id="pvLinePa" style="display:none"><span class="pv-text" id="pvTextPa"></span></div>
       <span class="gn-flourish" aria-hidden="true"><i></i><b></b><i></i></span>
     </div>
-    <p class="pers-need" id="persNeed" style="display:none">Type the guest&rsquo;s name first &mdash; English, Punjabi, or both &mdash; then tap Done and their link will appear here.</p>
+    <p class="pers-need" id="persNeed" style="display:none">Type the guest&rsquo;s name first, then tap Done and their link will appear here.</p>
     <button class="pers-done" id="persDone" type="button">Done</button>
     <div class="pers-link" id="persLink" style="display:none">
       <label class="pers-link-label" id="persLinkLabel" for="persFullLink">This guest&rsquo;s own link &mdash; copy the whole link and send it to them:</label>
@@ -758,22 +755,22 @@ document.getElementById("ogImage").setAttribute("content", CardArt.cover);
           persSideLabel:"Family side", persDadka:"Dadka", persNanka:"Nanka", persFriends:"Friends",
           persJagoLabel:"Include the Jago card",
           persBtn:"Address it to a guest", persTitle:"Who is this invitation for?",
-          persNote:"Type the guest\u2019s name in English, in Punjabi, or in both. The envelope is addressed in the language the guest opens \u2014 the English name in the English view, the Punjabi name in the Punjabi view.",
+          persNote:"Type the guest\u2019s name in English. The envelope is addressed to them by that name in both the English and Punjabi views.",
           persEnLabel:"Guest\u2019s name in English", persEnPlaceholder:"Name in English",
           persPaLabel:"Guest\u2019s name in Punjabi", persPaPlaceholder:"Name in Punjabi",
           persLinkLabel:"This guest\u2019s own link \u2014 copy the whole link and send it to them:",
-          persNeed:"Type the guest\u2019s name first \u2014 English, Punjabi, or both \u2014 then tap Done and their link will appear here.",
+          persNeed:"Type the guest\u2019s name first, then tap Done and their link will appear here.",
           persCopy:"Copy", persCopied:"Copied", persDone:"Done", persClose:"Close" },
     pa: { hint:"ਖੋਲ੍ਹਣ ਲਈ ਮੋਹਰ 'ਤੇ ਟੈਪ ਕਰੋ", hintRM:"ਖੋਲ੍ਹਣ ਲਈ ਹੇਠਾਂ ਸਕ੍ਰੋਲ ਕਰੋ", scroll:"ਹੌਲੀ-ਹੌਲੀ ਹੇਠਾਂ ਸਕ੍ਰੋਲ ਕਰੋ", close:"ਪਿਆਰ ਸਹਿਤ, ਢਿੱਲੋਂ ਪਰਿਵਾਰ",
           capNames:"ਗੁਣਤਾਜ ਸਿੰਘ ਅਤੇ ਦੀਪਿਕਾ", capDate:"ਸੋਮਵਾਰ, 18 ਜਨਵਰੀ 2027",
           persSideLabel:"ਪਰਿਵਾਰ ਦਾ ਪੱਖ", persDadka:"ਡਾਦਕਾ", persNanka:"ਨਾਨਕਾ", persFriends:"ਦੋਸਤ",
           persJagoLabel:"ਜਾਗੋ ਕਾਰਡ ਸ਼ਾਮਲ ਕਰੋ",
           persBtn:"ਮਹਿਮਾਨ ਦਾ ਨਾਂ ਲਿਖੋ", persTitle:"ਇਹ ਸੱਦਾ ਕਿਸ ਲਈ ਹੈ?",
-          persNote:"ਮਹਿਮਾਨ ਦਾ ਨਾਂ ਅੰਗਰੇਜ਼ੀ ਵਿੱਚ, ਪੰਜਾਬੀ ਵਿੱਚ, ਜਾਂ ਦੋਵਾਂ ਵਿੱਚ ਲਿਖੋ। ਮਹਿਮਾਨ ਜਿਹੜੀ ਭਾਸ਼ਾ ਖੋਲ੍ਹੇਗਾ, ਲਿਫ਼ਾਫ਼ੇ ਉੱਤੇ ਉਸੇ ਭਾਸ਼ਾ ਵਿੱਚ ਆਪਣਾ ਨਾਂ ਵੇਖੇਗਾ।",
+          persNote:"ਮਹਿਮਾਨ ਦਾ ਨਾਂ ਅੰਗਰੇਜ਼ੀ ਵਿੱਚ ਲਿਖੋ। ਲਿਫ਼ਾਫ਼ੇ ਉੱਤੇ ਉਹੀ ਨਾਂ ਅੰਗਰੇਜ਼ੀ ਅਤੇ ਪੰਜਾਬੀ ਦੋਵਾਂ ਨਜ਼ਰੀਆਂ ਵਿੱਚ ਦਿਖੇਗਾ।",
           persEnLabel:"ਅੰਗਰੇਜ਼ੀ ਵਿੱਚ ਨਾਂ", persEnPlaceholder:"ਅੰਗਰੇਜ਼ੀ ਵਿੱਚ ਨਾਂ",
           persPaLabel:"ਪੰਜਾਬੀ ਵਿੱਚ ਨਾਂ", persPaPlaceholder:"ਪੰਜਾਬੀ ਵਿੱਚ ਨਾਂ",
           persLinkLabel:"ਮਹਿਮਾਨ ਦਾ ਆਪਣਾ ਲਿੰਕ — ਪੂਰਾ ਲਿੰਕ ਕਾਪੀ ਕਰਕੇ ਉਹਨਾਂ ਨੂੰ ਭੇਜੋ:",
-          persNeed:"ਪਹਿਲਾਂ ਮਹਿਮਾਨ ਦਾ ਨਾਂ ਲਿਖੋ — ਅੰਗਰੇਜ਼ੀ, ਪੰਜਾਬੀ, ਜਾਂ ਦੋਵਾਂ ਵਿੱਚ — ਫਿਰ ਹੋ ਗਿਆ ਦਬਾਓ, ਉਹਨਾਂ ਦਾ ਲਿੰਕ ਇੱਥੇ ਆ ਜਾਵੇਗਾ।",
+          persNeed:"ਪਹਿਲਾਂ ਮਹਿਮਾਨ ਦਾ ਨਾਂ ਲਿਖੋ — ਫਿਰ ਹੋ ਗਿਆ ਦਬਾਓ, ਉਹਨਾਂ ਦਾ ਲਿੰਕ ਇੱਥੇ ਆ ਜਾਵੇਗਾ।",
           persCopy:"ਕਾਪੀ ਕਰੋ", persCopied:"ਕਾਪੀ ਹੋ ਗਿਆ", persDone:"ਹੋ ਗਿਆ", persClose:"ਬੰਦ ਕਰੋ" }
   };
   var lang = "en";
@@ -1574,18 +1571,17 @@ document.getElementById("ogImage").setAttribute("content", CardArt.cover);
   envBack.addEventListener("click", openInvite);
 
   /* ---------------- personalise: address it to a guest ----------------
-     Sender's openings only. The sender types the guest's name in English
-     and in Punjabi; the envelope behind the panel re-addresses
-     itself live, the preview swatch shows both hands, and the panel
-     hands back ONE complete link for that guest — the full public
-     address with both names in it — ready to copy into WhatsApp.
+     Sender's openings only. The sender types the guest's name in English;
+     the envelope behind the panel re-addresses itself live, the
+     preview swatch shows the name, and the panel hands back ONE
+     complete link for that guest — the full public address with the
+     name in it — ready to copy into WhatsApp.
      The dead-end "?to=…" suffix copy is gone: what is copied now
      is the whole link, and pasted anywhere it opens the invitation
      addressed to that guest. */
   var persBtn = document.getElementById("persBtn"),
       persOverlay = document.getElementById("persOverlay"),
       persInputEn = document.getElementById("persInputEn"),
-      persInputPa = document.getElementById("persInputPa"),
       persPreview = document.getElementById("persPreview"),
       pvLineEn = document.getElementById("pvLineEn"),
       pvLinePa = document.getElementById("pvLinePa"),
@@ -1643,11 +1639,10 @@ document.getElementById("ogImage").setAttribute("content", CardArt.cover);
     path += "/" + slug;
     if (!persJago) path += "/nojago";
     var link = INVITE_BASE + path;
-    /* both names typed: the path carries one name, and the Punjabi
-       name still rides along as the ?pa= parameter, exactly as it
-       does on the query links — the guest's ਪੰਜਾਬੀ view is then
-       addressed in Punjabi */
-    if (guestEn && guestPa) link += "?pa=" + encodeURIComponent(guestPa);
+    /* No ?pa= rides on a generated link: URL-encoded Gurmukhi would
+       balloon it to several lines in a chat message. Links already
+       sent with ?pa= still open addressed in Punjabi — the page
+       keeps reading the parameter — the panel just never adds it. */
     return link;
   }
   /* Typing re-addresses the envelope behind the panel and updates
@@ -1656,7 +1651,7 @@ document.getElementById("ogImage").setAttribute("content", CardArt.cover);
      any further typing withdraws it until Done is pressed again. */
   function syncPersPanel(){
     guestEn = cleanNameStr(persInputEn.value);
-    guestPa = cleanNameStr(persInputPa.value);
+    guestPa = "";
     refreshShownName();
     snapRender();
     if (guestEn || guestPa){
@@ -1722,7 +1717,6 @@ document.getElementById("ogImage").setAttribute("content", CardArt.cover);
     snapRender();
     if (persBtn) persBtn.style.display = "none";
     if (guestEn && !persInputEn.value) persInputEn.value = guestEn;
-    if (guestPa && !persInputPa.value) persInputPa.value = guestPa;
   }
   function wireCopy(btn, input){
     if (!btn || !input) return;
@@ -1741,14 +1735,13 @@ document.getElementById("ogImage").setAttribute("content", CardArt.cover);
       }
     });
   }
-  if (persBtn && persOverlay && persInputEn && persInputPa){
+  if (persBtn && persOverlay && persInputEn){
     /* The name panel belongs to the sender, so the button shows on
        the sender's own openings of the invitation — any opening
        that carries no guest name. A link addressed to a guest
        (?to= / ?pa=) opens clean: the guest never sees the button. */
     if (!guestEn && !guestPa && !hasGuestParams) persBtn.style.display = "";
     if (guestEn) persInputEn.value = guestEn;
-    if (guestPa) persInputPa.value = guestPa;
     persBtn.addEventListener("click", function(){
       persOverlay.classList.add("open");
       persNeed.style.display = "none";
@@ -1767,7 +1760,7 @@ document.getElementById("ogImage").setAttribute("content", CardArt.cover);
     persDone.addEventListener("click", function(){
       if (persLinkShown){ closePers(); return; }
       guestEn = cleanNameStr(persInputEn.value);
-      guestPa = cleanNameStr(persInputPa.value);
+      guestPa = "";
       if (!guestEn && !guestPa){
         persNeed.style.display = "";
         try { persInputEn.focus(); } catch (e) {}
@@ -1781,7 +1774,6 @@ document.getElementById("ogImage").setAttribute("content", CardArt.cover);
     persOverlay.addEventListener("click", function(ev){ if (ev.target === persOverlay) closePers(); });
     document.addEventListener("keydown", function(ev){ if (ev.key === "Escape" && persOverlay.classList.contains("open")) closePers(); });
     persInputEn.addEventListener("input", function(){ persNeed.style.display = "none"; syncPersPanel(); });
-    persInputPa.addEventListener("input", function(){ persNeed.style.display = "none"; syncPersPanel(); });
     wireCopy(persCopy, persFullLink);
     /* the family-side selector and the Jago tick-box: changing
        either withdraws a link already made, exactly as typing
