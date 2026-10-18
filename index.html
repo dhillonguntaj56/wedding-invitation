@@ -779,19 +779,29 @@ document.getElementById("ogImage").setAttribute("content", CardArt.cover);
   var lang = "en";
 
   /* ---------------- guest names + the master link ----------------
-     The invitation lives at one public address. A guest's own link
-     adds their name to the end of it: ?to=… carries the name in
-     English and &pa=… the same name in Punjabi (percent-encoded
-     UTF-8, decoded back to exactly what was typed). The envelope
-     shows the name matching the language the guest is viewing, so
-     the EN view is addressed in English and the ਪੰਜਾਬੀ view in
-     Punjabi; if only one was given it serves both views.
+     A guest's own link addresses the envelope to them. Two forms
+     carry the same information and both are read (the path form
+     wins when both are present):
+       SHORT PATH LINKS, on the invitation's own address:
+         /Guest-Name            Dadka side
+         /d/Guest-Name          Dadka, explicit
+         /n/Guest-Name          Nanka side
+         /f/Guest-Name          Friends side
+         …/Guest-Name/nojago    no Jago card (the ?jago=0 meaning)
+       QUERY LINKS, the original form, still fully supported:
+         ?to=… carries the name in English and &pa=… the same name
+         in Punjabi (percent-encoded UTF-8, decoded back to exactly
+         what was typed), &side= the family side, &jago=0 no Jago.
+     The envelope shows the name matching the language the guest is
+     viewing, so the EN view is addressed in English and the
+     ਪੰਜਾਬੀ view in Punjabi; if only one was given it serves both
+     views.
      The "address it to a guest" panel shows whenever the invitation
      is opened WITHOUT a guest name — those are the sender's own
      openings — and stays hidden on a
      guest's addressed link, so the name box never reaches guests.
      No name in the link: the invitation itself, unchanged. */
-  var INVITE_BASE = "https://dhillonguntaj56.github.io/wedding-invitation/";
+  var INVITE_BASE = "https://weddinginvitation.netlify.app";
   function cleanNameStr(v){
     v = (v || "").replace(/[\u0000-\u001F\u007F]/g, " ").replace(/\s+/g, " ").replace(/^\s+|\s+$/g, "");
     return v.length > 60 ? v.slice(0, 60) : v;
@@ -866,8 +876,60 @@ document.getElementById("ogImage").setAttribute("content", CardArt.cover);
     for (var k in src){ if (!(k in dst)) dst[k] = src[k]; }
     return dst;
   }
+  /* The short link form: the guest rides in the ADDRESS PATH of the
+     invitation's own address (any path on that host serves this
+     page). Returns a params object in the query form's vocabulary
+     — { to, side, jago } — or null when the path is not a guest
+     path. The page may also be served under the /wedding-invitation/
+     subpath on the old host, so a leading segment of that name is
+     stripped first; a trailing index.html is ignored. The shape is
+     checked strictly — [name], [name, nojago], [d|n|f, name],
+     [d|n|f, name, nojago] and nothing else — so an ordinary host
+     path (the site root, a multi-segment app route) never reads as
+     a guest. Segments are URL-decoded before use; the name's
+     hyphens become the spaces they stand for. */
+  function pathGuestParams(){
+    var raw = "";
+    try { raw = window.location.pathname || ""; } catch (e) { return null; }
+    var rawSegs = raw.split("/"), segs = [];
+    for (var i = 0; i < rawSegs.length; i++){
+      if (!rawSegs[i]) continue;
+      var seg = rawSegs[i];
+      try { seg = decodeURIComponent(seg); } catch (e) {}
+      segs.push(seg);
+    }
+    if (segs.length && segs[0].toLowerCase() === "wedding-invitation") segs.shift();
+    if (segs.length && segs[segs.length - 1].toLowerCase() === "index.html") segs.pop();
+    if (!segs.length || segs.length > 3) return null;
+    var side = "dadka", first = segs[0].toLowerCase();
+    if (first === "d" || first === "n" || first === "f"){
+      if (segs.length < 2) return null; /* a side prefix with no name after it */
+      side = (first === "n") ? "nanka" : (first === "f") ? "friends" : "dadka";
+      segs.shift();
+    }
+    if (segs.length < 1 || segs.length > 2) return null;
+    if (segs[0].indexOf(".") >= 0) return null; /* a file name, not a guest */
+    var nojago = false;
+    if (segs.length === 2){
+      if (segs[1].toLowerCase() !== "nojago") return null;
+      nojago = true;
+    }
+    var nm = cleanNameStr(segs[0].replace(/-/g, " "));
+    if (!nm) return null;
+    /* the path states its side and its Jago choice outright, so a
+       path link is never overridden by query parameters riding
+       along on the same address */
+    return { to: nm, side: side, jago: nojago ? "0" : "1" };
+  }
   function gatherParams(){
     var merged = {};
+    /* the path guest is merged FIRST: where the address carries the
+       guest in its path, that reading wins, and the query
+       parameters below only fill what the path does not state (a
+       ?pa= Punjabi name can still ride on a path link). With no
+       path guest, the query parameters decide exactly as before. */
+    var pathParams = pathGuestParams();
+    if (pathParams) mergeInto(merged, pathParams);
     function absorb(qsStr){ mergeInto(merged, paramsFromQuery(qsStr)); }
     absorb(window.location.search || "");
     if ((window.location.hash || "").indexOf("=") >= 0) absorb((window.location.hash || "").slice(1));
@@ -1567,20 +1629,26 @@ document.getElementById("ogImage").setAttribute("content", CardArt.cover);
     }
   }
   function guestLink(){
-    var parts = [];
-    if (guestEn) parts.push("to=" + encodeURIComponent(guestEn));
-    if (guestPa) parts.push("pa=" + encodeURIComponent(guestPa));
-    /* Dadka is the plain default and needs no marker; the other
-       sides and a missing Jago card ride along explicitly */
-    if (persSide === "nanka") parts.push("side=nanka");
-    else if (persSide === "friends") parts.push("side=friends");
-    if (!persJago) parts.push("jago=0");
-    if (!parts.length) return "";
-    var q = parts.join("&");
-    /* the names ride in the query AND again in the fragment: some
-       hosts drop the query when handing the public link to this
-       page, and the fragment copy is a second chance to catch them */
-    return INVITE_BASE + "?" + q + "#" + q;
+    /* The guest's link is the SHORT form on the invitation's own
+       address: the name in the address path (spaces as hyphens),
+       the family side as a one-letter prefix — Dadka, the plain
+       default, needs none — and /nojago at the end when the Jago
+       card is left out. One line, short enough to send as-is. */
+    var name = guestEn || guestPa;
+    if (!name) return "";
+    var slug = encodeURIComponent(cleanNameStr(name).replace(/\s+/g, "-"));
+    var path = "";
+    if (persSide === "nanka") path += "/n";
+    else if (persSide === "friends") path += "/f";
+    path += "/" + slug;
+    if (!persJago) path += "/nojago";
+    var link = INVITE_BASE + path;
+    /* both names typed: the path carries one name, and the Punjabi
+       name still rides along as the ?pa= parameter, exactly as it
+       does on the query links — the guest's ਪੰਜਾਬੀ view is then
+       addressed in Punjabi */
+    if (guestEn && guestPa) link += "?pa=" + encodeURIComponent(guestPa);
+    return link;
   }
   /* Typing re-addresses the envelope behind the panel and updates
      the preview swatch live — but the guest's link is a separate,
