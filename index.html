@@ -491,9 +491,15 @@ document.getElementById("ogImage").setAttribute("content", CardArt.cover);
   }
 
   /* ---------- the calendar + countdown section ----------
-     Rests in the finished column between the main invitation card
-     and the Jago card (the engine measures it and closes the column
-     up around it). The calendar is a paper card in the invitation's
+     Rests at the END of the finished column, after the Jago card
+     and before the closing line (the engine measures it and closes
+     the column up around it). It used to sit between the two cards:
+     the Jago card's presentation then played out on top of it, and
+     by the final rest it had glided off the top of the screen —
+     guests found it buried behind the cards, its heading tucked
+     under the language toggle. Last in the column, nothing covers
+     it, and the glide dwells with it centred before the closing
+     line. The calendar is a paper card in the invitation's
      own card style — grain over a warm cream sheet, the same soft
      deep shadow the cards carry — and the countdown beneath it is
      set in the invitation's serif with tabular numerals and fine
@@ -543,9 +549,11 @@ document.getElementById("ogImage").setAttribute("content", CardArt.cover);
     filter:drop-shadow(0 1px 1px rgba(134,104,31,.35));
   }
   .cal-legend{ margin-top:12px; font-size:15.5px; font-style:italic; font-weight:600; color:#7A6C4C; }
-  /* extra air above the countdown, so its heading is not crowded
-     by the floating language toggle at natural scroll positions */
-  .cd-block{ margin-top:56px; }
+  /* air above the countdown, inside the section's own card
+     column — the section now rests at the end of the journey, so
+     the heading keeps its breathing room from the calendar above
+     it rather than from the floating language toggle */
+  .cd-block{ margin-top:44px; }
   .cd-head{
     font-size:19px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:#5F4F2A;
   }
@@ -801,9 +809,9 @@ document.getElementById("ogImage").setAttribute("content", CardArt.cover);
         <span class="cap-date" data-cap-date>Monday, 18 January 2027</span>
       </div>
 
-      <!-- the calendar + countdown: rests in the finished column
-           between the main invitation card and the Jago card; the
-           engine measures it and positions it (see measure()) -->
+      <!-- the calendar + countdown: rests at the END of the finished
+           column, after the Jago card and before the closing line;
+           the engine measures it and positions it (see measure()) -->
       <div class="cal-section" id="calSection" style="opacity:0">
         <div class="cal-card">
           <h3 class="cal-title" data-cal-title>January 2027</h3>
@@ -861,6 +869,8 @@ document.getElementById("ogImage").setAttribute("content", CardArt.cover);
        alt="The invitation envelope, open" />
   <img data-en="main" data-pa="mainPa"
        alt="Wedding invitation — Monday 18 January 2027" />
+  <img data-en="insert" data-pa="insertPa"
+       alt="Jago ceremony invitation card" data-static-insert />
   <div class="cal-section">
     <div class="cal-card">
       <h3 class="cal-title" data-cal-title>January 2027</h3>
@@ -890,8 +900,6 @@ document.getElementById("ogImage").setAttribute("content", CardArt.cover);
       <p class="cd-done" data-cd-done style="display:none">The day is here</p>
     </div>
   </div>
-  <img data-en="insert" data-pa="insertPa"
-       alt="Jago ceremony invitation card" data-static-insert />
   <p class="close-line"><span class="rule" aria-hidden="true"></span><span data-close>With love, the Dhillon family</span></p>
 </main>
 
@@ -1487,30 +1495,47 @@ document.getElementById("ogImage").setAttribute("content", CardArt.cover);
     var envSlotCy = padTop + envSlotH / 2;
     var c1SlotS = 0.96, c1SlotH = h1 * c1SlotS;
     var c1SlotCy = padTop + envSlotH + 30 + c1SlotH / 2;
-    /* the calendar + countdown section rests in the column between
-       the main card and the Jago card; its laid-out height is
-       measured, so the column closes up exactly around it */
-    var secTop = c1SlotCy + c1SlotH / 2 + 36;
+    var c1Bottom = c1SlotCy + c1SlotH / 2;
+    /* the Jago card's slot follows the main card directly */
+    var c2SlotCy = hasJago ? c1Bottom + 38 + h2 / 2 : c1SlotCy;
+    var colBottom = hasJago ? c2SlotCy + h2 / 2 : c1Bottom;
+    /* the calendar + countdown section closes the column, AFTER
+       the last card: it used to rest between the two cards, where
+       the Jago card's presentation played out on top of it and the
+       final glide carried it off the top of the screen — guests
+       found it buried behind the cards, barely visible. Last in
+       the column, nothing ever covers it, and the glide below
+       dwells with it centred before the closing line. Its laid-out
+       height is measured, so the column closes up exactly around
+       it */
+    var secTop = colBottom + 38;
     var secH = calSection ? calSection.offsetHeight : 0;
     if (calSection) calSection.style.top = secTop + "px";
     var secBottom = secTop + secH;
-    /* without a Jago card the column closes up: the closing line
-       follows the calendar section directly, no empty Jago slot */
-    var c2SlotCy = hasJago ? secBottom + 38 + h2 / 2 : c1SlotCy;
-    var lineCy = hasJago ? c2SlotCy + h2 / 2 + 50 : secBottom + 54;
+    var lineCy = secBottom + 54;
     /* the column runs on well past the closing line, so at rest the
        line sits fully clear of the fixed corners — the music disc
        bottom-left and, on the sender's own view, the "address it to
        a guest" button bottom-right — never underneath either */
-    var colH = lineCy + 46 + 88;
+    var colH = lineCy + 46 + 80;
     var shiftMax = Math.max(0, colH - H + 12);
     world.style.height = colH + "px";
     closeLine.style.top = lineCy + "px";
 
     /* The world glide runs only in the last act. Keyframes below are in
        world coordinates, so a part that must HOLD a screen position
-       while the world glides adds shiftAt(p) back onto its target. */
-    shiftK = K([[0, 0], [0.68, 0], [1, shiftMax]]);
+       while the world glides adds shiftAt(p) back onto its target.
+       The glide DWELLS on the calendar section: the shift rises to
+       the value that centres the section on screen and holds there
+       while the guest reads it, then completes the last short run
+       to the closing line. Without the dwell the section only swept
+       past — and at rest it sat off the top of the screen. */
+    var shiftSec = Math.min(Math.max(secTop + secH / 2 - H * 0.52, 0), shiftMax);
+    if (shiftMax - shiftSec >= 48 && shiftSec >= 48){
+      shiftK = K([[0, 0], [0.68, 0], [0.86, shiftSec], [0.93, shiftSec], [1, shiftMax]]);
+    } else {
+      shiftK = K([[0, 0], [0.68, 0], [1, shiftMax]]);
+    }
     function shiftAt(p){ return shiftK(p)[0]; }
 
     /* ---- envelope journey: every act staged inside the viewport ----
@@ -1601,9 +1626,10 @@ document.getElementById("ogImage").setAttribute("content", CardArt.cover);
     sealK  = K([[0, 1, 0, 1], [0.05, 0, -12, 1.02], [1, 0, -12, 1.02]]);
     lineK  = K([[0, 0], [0.93, 0], [0.99, 1], [1, 1]]);
     /* the calendar section is part of the column the world glide
-       carries past the guest: it fades in as the glide begins and
-       stays — at rest it sits just above the Jago card's slot */
-    calSecK = K([[0, 0], [0.70, 0], [0.79, 1], [1, 1]]);
+       carries past the guest: it fades in as the glide brings it
+       up and is fully present for the dwell that centres it at the
+       end of the column */
+    calSecK = K([[0, 0], [0.74, 0], [0.84, 1], [1, 1]]);
     /* the guest's name is written on the envelope, and an opened
        envelope is no longer addressed: it fades as the flap lifts */
     nameK  = K([[0, 1], [0.035, 0], [1, 0]]);
@@ -1725,7 +1751,8 @@ document.getElementById("ogImage").setAttribute("content", CardArt.cover);
     var sIn = clamp01((p - 0.09) / 0.04), sOut = clamp01((p - 0.44) / 0.06);
     hintScroll.style.opacity = sIn * (1 - sOut);
 
-    /* the calendar + countdown section fades in with the glide */
+    /* the calendar + countdown section fades in as the glide
+       brings the end of the column up */
     if (calSection && calSecK) calSection.style.opacity = calSecK(p)[0];
 
     /* the vinyl disc fades in as the opening begins and then stays
