@@ -448,14 +448,58 @@ document.getElementById("ogImage").setAttribute("content", "https://weddinginvit
      once in English, once in Punjabi — and the panel hands back ONE
      complete, copyable link for that guest. The guest sees the name
      in whichever language they open the invitation in. */
+  /* the sender's button is not a web pill: it is a small cream
+     paper tag resting against the envelope's bottom corner — the
+     same fibrous, grained paper as the liner, lit like a real
+     sheet, lying at a slight placed tilt with a soft grounded
+     shadow, a punched hole ringed by a brass eyelet and a fine
+     loop of twine through it, lettered in the invitation's serif
+     and the deep bronze-gold ink the envelope itself is addressed
+     in. Still plainly a button: it lifts a breath under the
+     finger and opens the sender panel exactly as before. */
   .pers-btn{
-    position:fixed; right:14px; bottom:calc(16px + env(safe-area-inset-bottom)); z-index:41;
-    font:inherit; font-size:15.5px; font-weight:600; letter-spacing:.03em;
-    color:#6E5214; background:rgba(250,247,238,.92);
-    border:1px solid rgba(168,132,44,.55); border-radius:999px;
-    padding:9px 16px; cursor:pointer; box-shadow:0 4px 14px rgba(84,74,44,.20);
+    position:fixed; right:16px; bottom:calc(16px + env(safe-area-inset-bottom)); z-index:41;
+    font:inherit; font-size:15.5px; font-weight:600; letter-spacing:.045em;
+    color:#63490F; cursor:pointer;
+    transform:rotate(-1.7deg);
+    padding:10px 17px 11px 34px;
+    background:var(--grain), var(--fibre),
+      linear-gradient(163deg, #FDFAF0 0%, #F7F1DE 62%, #EFE4C6 100%);
+    border:1px solid rgba(168,132,44,.42);
+    border-radius:5px 8px 6px 9px / 8px 6px 9px 6px;
+    box-shadow:0 1px 2px rgba(52,46,24,.28), 0 5px 10px rgba(74,64,36,.26),
+      0 15px 28px rgba(74,64,36,.20),
+      inset 0 1px 0 rgba(255,255,255,.75), inset 0 -8px 14px rgba(101,88,54,.07);
+    text-shadow:0 1px 0 rgba(255,248,220,.5);
+    transition:transform .16s ease, box-shadow .16s ease;
   }
-  .pers-btn:active{ transform:scale(.97); }
+  /* the punched hole, ringed by its brass eyelet */
+  .pers-btn::before{
+    content:""; position:absolute; left:13px; top:50%;
+    width:6px; height:6px; border-radius:50%;
+    transform:translateY(-50%);
+    background:radial-gradient(circle at 42% 38%, #D8CBA3, #B7A678);
+    border:1.5px solid rgba(146,110,40,.85);
+    box-shadow:inset 0 1px 2px rgba(70,52,8,.55), 0 1px 1px rgba(255,255,255,.65);
+    pointer-events:none;
+  }
+  /* the fine twine loop through the hole, peeking above the tag's
+     top edge the way a real string loop lies */
+  .pers-btn::after{
+    content:""; position:absolute; left:3px; top:-9px;
+    width:27px; height:19px; border-radius:50%;
+    border:1.6px solid rgba(122,101,52,.78);
+    transform:rotate(-21deg);
+    box-shadow:0 1px 1px rgba(74,64,36,.18);
+    pointer-events:none;
+  }
+  .pers-btn:active{
+    transform:rotate(-1.7deg) scale(.97);
+    box-shadow:0 1px 2px rgba(52,46,24,.28), 0 3px 7px rgba(74,64,36,.26),
+      0 9px 18px rgba(74,64,36,.20),
+      inset 0 1px 0 rgba(255,255,255,.75), inset 0 -8px 14px rgba(101,88,54,.07);
+  }
+  .pers-btn:focus-visible{ outline:2px solid var(--gold); outline-offset:3px; }
   .pers-overlay{
     position:fixed; inset:0; z-index:60; display:none;
     align-items:flex-end; justify-content:center;
