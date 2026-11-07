@@ -388,6 +388,38 @@ document.getElementById("ogImage").setAttribute("content", "https://dhillongunta
     background:#6E5214; transform:rotate(45deg); opacity:.8;
   }
 
+  /* scratch-to-reveal — a patch of rough gold brush paint laid over
+     the addressee line. The paint itself is drawn on the canvas by
+     the engine (uneven strokes, torn edges, matte speckle — never a
+     flat fill); this is only its frame. It sits over .gn-inner with
+     a little breathing room on every side, takes the finger / mouse
+     itself (the name beneath keeps pointer-events:none), and stops
+     the page scroll only inside its own small patch. */
+  .gn-scratch{
+    position:absolute; inset:-10px -12px; z-index:4; display:block;
+    pointer-events:auto; cursor:pointer; touch-action:none;
+    border-radius:8px; outline-offset:3px;
+    -webkit-tap-highlight-color:transparent;
+    -webkit-user-select:none; user-select:none;
+  }
+  .gn-scratch:focus-visible{ outline:2px solid #8A6A1F; }
+  .gn-scratch-hint{
+    position:absolute; inset:-10px -12px; z-index:5;
+    display:flex; align-items:center; justify-content:center;
+    padding:0 5px; pointer-events:none; text-align:center;
+    white-space:normal; line-height:1.3;
+    font-family:"Cormorant Garamond","Noto Serif Gurmukhi",Georgia,serif;
+    font-weight:700; font-size:12px; letter-spacing:.18em; text-transform:uppercase;
+    color:rgba(66,46,6,.88); text-shadow:0 1px 0 rgba(255,240,196,.35);
+    transition:opacity .3s ease;
+    -webkit-user-select:none; user-select:none;
+  }
+  /* Gurmukhi shaping breaks under wide letter-spacing / uppercase */
+  .gn-pa .gn-scratch-hint{
+    font-family:"Baloo Paaji 2","Noto Serif Gurmukhi",sans-serif;
+    letter-spacing:.03em; text-transform:none;
+  }
+
   /* cards */
   .card{ will-change:transform; border-radius:10px;
     box-shadow:0 22px 44px rgba(84,74,44,.30), 0 4px 12px rgba(84,74,44,.18); }
@@ -1112,6 +1144,8 @@ window.setTimeout(window.__dismissInviteLoader, 12000);
         <div class="gn-inner">
           <span class="gn-to" id="gnTo" aria-hidden="true">To</span>
           <span class="gn-text" id="gnText"></span>
+          <canvas class="gn-scratch" id="gnScratch" style="display:none" tabindex="0" role="button" aria-label="Scratch or tap to reveal the name on the envelope"></canvas>
+          <span class="gn-scratch-hint" id="gnScratchHint" style="display:none" aria-hidden="true">Scratch to reveal</span>
         </div>
       </div>
 
@@ -1305,7 +1339,8 @@ window.setTimeout(window.__dismissInviteLoader, 12000);
           calWd:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
           cdHead:"Counting the days", cdDone:"The day is here",
           cdMonths:"Months", cdDays:"Days", cdHours:"Hours", cdMinutes:"Minutes", cdSeconds:"Seconds",
-          musicLabel:"Play or pause the music" },
+          musicLabel:"Play or pause the music",
+          scratchHint:"Scratch to reveal", scratchAria:"Scratch or tap to reveal the name on the envelope" },
     pa: { hint:"ਖੋਲ੍ਹਣ ਲਈ ਮੋਹਰ 'ਤੇ ਟੈਪ ਕਰੋ", hintRM:"ਖੋਲ੍ਹਣ ਲਈ ਹੇਠਾਂ ਸਕ੍ਰੋਲ ਕਰੋ", scroll:"ਹੌਲੀ-ਹੌਲੀ ਹੇਠਾਂ ਸਕ੍ਰੋਲ ਕਰੋ", close:"ਪਿਆਰ ਸਹਿਤ, ਢਿੱਲੋਂ ਪਰਿਵਾਰ",
           capNames:"ਗੁਣਤਾਜ ਸਿੰਘ ਅਤੇ ਦੀਪਿਕਾ", capDate:"ਸੋਮਵਾਰ, 18 ਜਨਵਰੀ 2027",
           persSideLabel:"ਪਰਿਵਾਰ ਦਾ ਪੱਖ", persDadka:"ਡਾਦਕਾ", persNanka:"ਨਾਨਕਾ", persFriends:"ਦੋਸਤ",
@@ -1321,7 +1356,8 @@ window.setTimeout(window.__dismissInviteLoader, 12000);
           calWd:["ਸੋਮ","ਮੰਗਲ","ਬੁੱਧ","ਵੀਰ","ਸ਼ੁੱਕਰ","ਸ਼ਨੀ","ਐਤ"],
           cdHead:"ਦਿਨਾਂ ਦੀ ਗਿਣਤੀ", cdDone:"ਉਹ ਦਿਨ ਆ ਗਿਆ",
           cdMonths:"ਮਹੀਨੇ", cdDays:"ਦਿਨ", cdHours:"ਘੰਟੇ", cdMinutes:"ਮਿੰਟ", cdSeconds:"ਸਕਿੰਟ",
-          musicLabel:"ਸੰਗੀਤ ਚਲਾਓ ਜਾਂ ਰੋਕੋ" }
+          musicLabel:"ਸੰਗੀਤ ਚਲਾਓ ਜਾਂ ਰੋਕੋ",
+          scratchHint:"ਖੁਰਚ ਕੇ ਵੇਖੋ", scratchAria:"ਲਿਫ਼ਾਫ਼ੇ 'ਤੇ ਨਾਂ ਵੇਖਣ ਲਈ ਖੁਰਚੋ ਜਾਂ ਟੈਪ ਕਰੋ" }
   };
   var lang = "en";
 
@@ -2001,7 +2037,7 @@ window.setTimeout(window.__dismissInviteLoader, 12000);
      of the envelope's width; long names stay one line. The little
      "To" capitals scale with the name they introduce. */
   function fitGuestName(){
-    if (!guestName) return;
+    if (!guestName){ layoutScratch(); return; }
     var size = guestIsPa ? wE * 0.047 : wE * 0.054;
     gnText.style.fontSize = size + "px";
     if (gnTo) gnTo.style.fontSize = Math.max(9, size * 0.36) + "px";
@@ -2012,12 +2048,296 @@ window.setTimeout(window.__dismissInviteLoader, 12000);
       gnText.style.fontSize = size + "px";
       if (gnTo) gnTo.style.fontSize = Math.max(9, size * 0.36) + "px";
     }
+    layoutScratch();
   }
   if (guestName){
     gnText.textContent = guestName;
     guestEl.classList.add(guestIsPa ? "gn-pa" : "gn-en");
     guestEl.style.display = "";
     guestEl.setAttribute("aria-label", "An invitation for " + guestName);
+  }
+
+  /* ---------------- scratch-to-reveal over the name ----------------
+     A patch of rough gold brush paint covers the addressee line;
+     the guest scratches it away with a finger or mouse — or taps
+     it, or presses Enter — and finds their name underneath. On the
+     master link no guest is named, so the paint covers a generic
+     "You're Invited" in the same hand and the sender can try the
+     scratch there too; guestEn / guestPa stay empty in that mode,
+     so the sender's button and link-making are untouched. The
+     canvas lives inside .gn-inner, so it inherits the envelope's
+     transform and the open-fade (nameK) exactly like the name it
+     covers. A reveal lasts for the visit only — nothing is stored,
+     and a reload covers the line again. While the sender's panel
+     is open the paint steps aside, so the envelope behind the
+     panel re-addresses itself live exactly as before. */
+  var gnGeneric = false,
+      gnInner = gnText.parentNode,
+      scratchCv = document.getElementById("gnScratch"),
+      scratchHint = document.getElementById("gnScratchHint"),
+      scratchCtx = scratchCv ? scratchCv.getContext("2d") : null,
+      scratchRevealed = false,
+      scratchSig = "",
+      scratchDown = false,
+      scratchMoved = 0,
+      scratchLast = null,
+      scratchDownAt = 0,
+      scratchCheckAt = 0;
+
+  function persIsOpen(){
+    var ov = document.getElementById("persOverlay");
+    return !!(ov && ov.classList.contains("open"));
+  }
+  /* the master link's generic line, on show from the first frame:
+     refreshShownName() re-derives it on every later change */
+  if (!guestName && !hasGuestParams){
+    gnGeneric = true;
+    gnText.textContent = "You\u2019re Invited";
+    guestEl.classList.add("gn-en");
+    guestEl.style.display = "";
+    guestEl.setAttribute("aria-label", "You are cordially invited");
+  }
+  function scratchSeedRand(seed){
+    var a = seed >>> 0;
+    return function(){
+      a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  /* Paint the cover: rough gold brush paint, never a flat fill. A
+     silhouette whose edges wander is clipped and laid with uneven
+     gold, then worked over with short strokes in darker and
+     lighter golds, broad tonal patches, dry-brush speckle, a torn
+     edge and a few stray flecks — the way a hand-painted patch
+     actually looks. A fixed seed keeps every repaint the same
+     painting. */
+  function paintScratch(w, h){
+    var ctx = scratchCtx, rnd = scratchSeedRand(20270118), i, t;
+    ctx.clearRect(0, 0, w, h);
+    if (w < 8 || h < 8) return;
+    var mx = Math.min(7, w * 0.03), my = Math.min(5, h * 0.11);
+    var pts = [], steps = 26;
+    for (i = 0; i <= steps; i++){ t = i / steps; pts.push([mx + (w - 2 * mx) * t, my + (rnd() - 0.5) * my * 1.1]); }
+    for (i = 1; i <= 10; i++){ t = i / 10; pts.push([w - mx + (rnd() - 0.5) * mx * 1.1, my + (h - 2 * my) * t]); }
+    for (i = 1; i <= steps; i++){ t = i / steps; pts.push([w - mx - (w - 2 * mx) * t, h - my + (rnd() - 0.5) * my * 1.1]); }
+    for (i = 1; i < 10; i++){ t = i / 10; pts.push([mx + (rnd() - 0.5) * mx * 1.1, h - my - (h - 2 * my) * t]); }
+    function tracePath(){
+      ctx.beginPath();
+      ctx.moveTo((pts[0][0] + pts[pts.length - 1][0]) / 2, (pts[0][1] + pts[pts.length - 1][1]) / 2);
+      for (var j = 0; j < pts.length; j++){
+        var p = pts[j], q = pts[(j + 1) % pts.length];
+        ctx.quadraticCurveTo(p[0], p[1], (p[0] + q[0]) / 2, (p[1] + q[1]) / 2);
+      }
+      ctx.closePath();
+    }
+    var tones = ["#8A671C", "#9C7A24", "#D9B95C", "#E8D189", "#7E5F18", "#C7A344"];
+    ctx.save();
+    tracePath(); ctx.clip();
+    var g = ctx.createLinearGradient(0, 0, w * 0.85, h);
+    g.addColorStop(0, "#C9A44A"); g.addColorStop(0.45, "#B9922F");
+    g.addColorStop(0.75, "#C39F3C"); g.addColorStop(1, "#A87F27");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+    for (i = 0; i < 7; i++){
+      ctx.globalAlpha = 0.05 + rnd() * 0.07;
+      ctx.fillStyle = rnd() > 0.5 ? "#8F6B1D" : "#E3C878";
+      ctx.beginPath();
+      ctx.ellipse(rnd() * w, rnd() * h, w * (0.12 + rnd() * 0.22), h * (0.25 + rnd() * 0.4), (rnd() - 0.5) * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.lineCap = "round";
+    for (i = 0; i < 130; i++){
+      var sy = rnd() * h, sx = rnd() * w * 0.72, len = w * (0.08 + rnd() * 0.30);
+      ctx.globalAlpha = 0.05 + rnd() * 0.12;
+      ctx.strokeStyle = tones[(rnd() * tones.length) | 0];
+      ctx.lineWidth = 1 + rnd() * h * 0.16;
+      ctx.beginPath();
+      ctx.moveTo(sx, sy);
+      ctx.quadraticCurveTo(sx + len * 0.5, sy + (rnd() - 0.5) * 3.5, sx + len, sy + (rnd() - 0.5) * 2.5);
+      ctx.stroke();
+    }
+    for (i = 0; i < 650; i++){
+      ctx.globalAlpha = 0.04 + rnd() * 0.10;
+      ctx.fillStyle = rnd() > 0.45 ? "#6E5214" : "#F2DFA6";
+      ctx.fillRect(rnd() * w, rnd() * h, 1 + rnd() * 2.4, 1 + rnd() * 1.4);
+    }
+    ctx.restore();
+    ctx.globalAlpha = 1;
+    /* a soft dark edge, so the patch reads as a thing laid ON the paper */
+    tracePath();
+    ctx.strokeStyle = "rgba(94,68,16,.38)"; ctx.lineWidth = 1.4; ctx.stroke();
+    /* the torn edge: little bites out of the silhouette, and a few
+       stray paint flecks left just outside it */
+    ctx.globalCompositeOperation = "destination-out";
+    for (i = 0; i < pts.length * 2; i++){
+      var pp = pts[(rnd() * pts.length) | 0];
+      ctx.beginPath();
+      ctx.arc(pp[0] + (rnd() - 0.5) * 5, pp[1] + (rnd() - 0.5) * 5, 0.7 + rnd() * 2.1, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalCompositeOperation = "source-over";
+    for (i = 0; i < 12; i++){
+      var pq = pts[(rnd() * pts.length) | 0];
+      ctx.globalAlpha = 0.25 + rnd() * 0.4;
+      ctx.fillStyle = tones[(rnd() * tones.length) | 0];
+      ctx.beginPath();
+      ctx.arc(pq[0] + (rnd() - 0.5) * 12, pq[1] + (rnd() - 0.5) * 10, 0.6 + rnd() * 1.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+  /* size the generic line the way fitGuestName sizes a real name */
+  function fitGenericLine(){
+    var size = wE * 0.054;
+    gnText.style.fontSize = size + "px";
+    var limit = wE * 0.62, guard = 0;
+    while (gnInner.scrollWidth > limit && size > 11 && guard < 60){
+      size *= 0.94; guard++;
+      gnText.style.fontSize = size + "px";
+    }
+  }
+  /* (Re)lay the paint over the name box as it now stands. Called
+     from fitGuestName (measure / resize / fonts) and so follows
+     every name, language and size change; a signature makes repeat
+     calls with an unchanged box free. */
+  function layoutScratch(){
+    if (!scratchCv || !scratchCtx) return;
+    /* the "To" belongs to a real addressee; the generic line stands alone */
+    if (gnTo) gnTo.style.display = gnGeneric ? "none" : "";
+    if (scratchRevealed){ scratchCv.style.pointerEvents = "none"; return; }
+    var mode = "off";
+    if (!persIsOpen()){
+      if (guestName) mode = "guest";
+      else if (gnGeneric) mode = "master";
+    }
+    if (mode === "off" || guestEl.style.display === "none"){
+      scratchCv.style.display = "none";
+      scratchHint.style.display = "none";
+      scratchSig = "";
+      return;
+    }
+    if (gnGeneric) fitGenericLine();
+    var iw = gnInner.offsetWidth, ih = gnInner.offsetHeight;
+    if (iw < 10 || ih < 6) return;
+    /* a canvas is a replaced element — inset alone will not stretch
+       it — so its frame is set in pixels from the name box it covers
+       (the CSS inset offsets its corner; width / height rule here) */
+    scratchCv.style.width = (iw + 24) + "px";
+    scratchCv.style.height = (ih + 20) + "px";
+    scratchCv.style.display = "";
+    scratchHint.style.display = "";
+    scratchHint.textContent = STR[lang].scratchHint;
+    scratchCv.setAttribute("aria-label", STR[lang].scratchAria);
+    var sig = mode + "|" + lang + "|" + iw + "x" + ih + "|" + gnText.textContent;
+    if (sig === scratchSig) return;
+    scratchSig = sig;
+    var scale = Math.min(3, Math.max(2, window.devicePixelRatio || 1));
+    var cw = Math.round((iw + 24) * scale),
+        ch = Math.round((ih + 20) * scale);
+    if (cw < 8 || ch < 8) return;
+    scratchCv.width = cw; scratchCv.height = ch;
+    paintScratch(cw, ch);
+    scratchHint.style.opacity = "";
+  }
+  function revealScratch(){
+    if (scratchRevealed) return;
+    scratchRevealed = true;
+    scratchDown = false;
+    scratchCv.style.pointerEvents = "none";
+    scratchCv.setAttribute("tabindex", "-1");
+    if (reducedMotion){
+      scratchCv.style.display = "none";
+      scratchHint.style.display = "none";
+      return;
+    }
+    scratchCv.style.transition = "opacity .4s ease";
+    scratchHint.style.transition = "opacity .4s ease";
+    scratchCv.style.opacity = "0";
+    scratchHint.style.opacity = "0";
+    window.setTimeout(function(){
+      scratchCv.style.display = "none";
+      scratchHint.style.display = "none";
+    }, 430);
+  }
+  function scratchPoint(ev){
+    var r = scratchCv.getBoundingClientRect();
+    if (r.width < 1 || r.height < 1) return null;
+    return { x: (ev.clientX - r.left) / r.width * scratchCv.width,
+             y: (ev.clientY - r.top) / r.height * scratchCv.height,
+             cx: ev.clientX, cy: ev.clientY };
+  }
+  function scratchStroke(a, b){
+    var ctx = scratchCtx;
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.lineCap = "round"; ctx.lineJoin = "round";
+    /* the main pass lifts the paint clean away… */
+    ctx.strokeStyle = "rgba(0,0,0,1)";
+    ctx.lineWidth = Math.max(14, scratchCv.height * 0.6);
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    /* …and jittered half-passes leave its edge torn, not ruled */
+    ctx.strokeStyle = "rgba(0,0,0,.35)";
+    ctx.lineWidth = Math.max(8, scratchCv.height * 0.3);
+    for (var i = 0; i < 3; i++){
+      var jx = (Math.random() - 0.5) * scratchCv.height * 0.34,
+          jy = (Math.random() - 0.5) * scratchCv.height * 0.34;
+      ctx.beginPath(); ctx.moveTo(a.x + jx, a.y + jy); ctx.lineTo(b.x + jx, b.y + jy); ctx.stroke();
+    }
+    ctx.globalCompositeOperation = "source-over";
+  }
+  function scratchFraction(){
+    try {
+      var img = scratchCtx.getImageData(0, 0, scratchCv.width, scratchCv.height).data;
+      var total = 0, clear = 0;
+      for (var p = 3; p < img.length; p += 16){ total++; if (img[p] < 110) clear++; }
+      return total ? clear / total : 0;
+    } catch (e) { return 0; }
+  }
+  if (scratchCv && scratchCtx){
+    scratchCv.addEventListener("pointerdown", function(ev){
+      if (scratchRevealed) return;
+      ev.preventDefault();
+      scratchDown = true; scratchMoved = 0; scratchDownAt = Date.now();
+      scratchLast = scratchPoint(ev);
+      if (scratchLast) scratchStroke(scratchLast, scratchLast);
+      scratchHint.style.opacity = "0";
+      try { scratchCv.setPointerCapture(ev.pointerId); } catch (e) {}
+    });
+    scratchCv.addEventListener("pointermove", function(ev){
+      if (!scratchDown || scratchRevealed) return;
+      ev.preventDefault();
+      var pt = scratchPoint(ev);
+      if (!pt) return;
+      if (scratchLast){
+        scratchMoved += Math.abs(pt.cx - scratchLast.cx) + Math.abs(pt.cy - scratchLast.cy);
+        scratchStroke(scratchLast, pt);
+      }
+      scratchLast = pt;
+      var now = Date.now();
+      if (now - scratchCheckAt > 130){
+        scratchCheckAt = now;
+        if (scratchFraction() >= 0.45) revealScratch();
+      }
+    });
+    scratchCv.addEventListener("pointerup", function(){
+      if (!scratchDown) return;
+      scratchDown = false;
+      if (scratchRevealed) return;
+      /* a tap — short, barely moved — reveals at once; so does a
+         scratch that has already cleared about half the paint */
+      var quick = Date.now() - scratchDownAt < 350;
+      if ((quick && scratchMoved < 10) || scratchFraction() >= 0.45) revealScratch();
+    });
+    scratchCv.addEventListener("pointercancel", function(){ scratchDown = false; });
+    /* in-app browsers that shrug at touch-action still must not
+       scroll the page from inside the paint patch */
+    scratchCv.addEventListener("touchmove", function(ev){ ev.preventDefault(); }, { passive: false });
+    scratchCv.addEventListener("keydown", function(ev){
+      if (ev.key === "Enter" || ev.key === " " || ev.key === "Spacebar"){
+        ev.preventDefault();
+        revealScratch();
+      }
+    });
   }
 
   function place(el, cx, cy, w, h, s){
@@ -2345,12 +2665,25 @@ window.setTimeout(window.__dismissInviteLoader, 12000);
     guestName = (lang === "pa") ? (guestPa || guestEn) : (guestEn || guestPa);
     guestIsPa = hasPaScript(guestName);
     if (guestName){
+      gnGeneric = false;
       gnText.textContent = guestName;
       guestEl.classList.remove("gn-en", "gn-pa");
       guestEl.classList.add(guestIsPa ? "gn-pa" : "gn-en");
       guestEl.style.display = "";
       guestEl.setAttribute("aria-label", "An invitation for " + guestName);
+    } else if (!hasGuestParams && !persIsOpen()){
+      /* a sender's opening names no guest: the scratch paint covers
+         a generic line in the same hand instead, so the master link
+         demos the reveal too. guestEn / guestPa stay empty — the
+         sender's button and link-making key off them, untouched. */
+      gnGeneric = true;
+      gnText.textContent = "You\u2019re Invited";
+      guestEl.classList.remove("gn-en", "gn-pa");
+      guestEl.classList.add("gn-en");
+      guestEl.style.display = "";
+      guestEl.setAttribute("aria-label", "You are cordially invited");
     } else {
+      gnGeneric = false;
       guestEl.style.display = "none";
       guestEl.removeAttribute("aria-label");
     }
@@ -2496,6 +2829,11 @@ window.setTimeout(window.__dismissInviteLoader, 12000);
       persOverlay.classList.remove("open");
       persNeed.style.display = "none";
       hideGuestLink();
+      /* with the panel gone the envelope is the guest's again: the
+         name (or the master link's generic line) comes back under
+         its scratch paint, unless it was already revealed */
+      refreshShownName();
+      snapRender();
     }
     /* Done is the process step. With a name typed, it generates
        that guest's link and reveals it under the button (which
