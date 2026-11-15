@@ -26,6 +26,33 @@
 <meta name="twitter:title" content="Guntaj Singh weds Deepika — 18 January 2027" />
 <meta name="twitter:description" content="Guntaj Singh weds Deepika - Monday, 18 January 2027, Malout. You are cordially invited." />
 <script>
+/* ============ SHORT GUEST LINKS — 404 FALLBACK LANDING ============
+   A guest's short link (…/Guest-Name, …/n/Guest-Name, …/Guest-Name/nojago)
+   names a path GitHub Pages has no file for, so the site's 404.html
+   bounces the browser straight back to this page with the path encoded
+   in the query: …/?/Guest-Name (a real query, if any, rides after it
+   with its & written ~and~). This runs before anything else on the
+   page: it restores the clean guest path in the address bar, so the
+   guest resolution below reads the name from the path exactly as if
+   the short link had been served directly. If the restore is ever
+   unavailable (a webview that refuses replaceState), nothing breaks —
+   pathGuestParams() also reads the encoded ?/… form itself. On any
+   ordinary opening the query does not start with "?/" and this is a
+   no-op. */
+(function(){
+  try {
+    var l = window.location;
+    if (l.search && l.search.charAt(1) === "/"){
+      var decoded = l.search.slice(1).split("&").map(function(s){
+        return s.replace(/~and~/g, "&");
+      }).join("?");
+      window.history.replaceState(null, null,
+        l.pathname.slice(0, -1) + decoded + (l.hash || ""));
+    }
+  } catch (e) {}
+})();
+</script>
+<script>
 /* ================= SHARED CARD ARTWORK — DEFINED ONCE =================
    Every card image in the invitation is defined exactly once, here.
    Nothing else in the page names an image file: each <img> carries
@@ -2143,6 +2170,13 @@ window.setTimeout(window.__dismissInviteLoader, 12000);
          /n/Guest-Name          Nanka side
          /f/Guest-Name          Friends side
          …/Guest-Name/nojago    no Jago card (the ?jago=0 meaning)
+       GitHub Pages serves no page at those paths, so the site's
+       404.html bounces a short link straight back here with its
+       path encoded in the address (…/?/Guest-Name); the small
+       script at the top of <head> restores the clean path before
+       anything reads it, and pathGuestParams() also understands
+       the encoded form directly, so the guest is addressed either
+       way.
        QUERY LINKS, the original form, still fully supported:
          ?to=… carries the name in English and &pa=… the same name
          in Punjabi (percent-encoded UTF-8, decoded back to exactly
@@ -2241,27 +2275,35 @@ window.setTimeout(window.__dismissInviteLoader, 12000);
     return dst;
   }
   /* The short link form: the guest rides in the ADDRESS PATH of the
-     invitation's own address (any path on that host serves this
-     page). Returns a params object in the query form's vocabulary
-     — { to, side, jago } — or null when the path is not a guest
-     path. The page may also be served under the /wedding-invitation/
-     subpath on the old host, so a leading segment of that name is
-     stripped first; a trailing index.html is ignored. The shape is
-     checked strictly — [name], [name, nojago], [d|n|f, name],
-     [d|n|f, name, nojago] and nothing else — so an ordinary host
-     path (the site root, a multi-segment app route) never reads as
-     a guest. Segments are URL-decoded before use; the name's
-     hyphens become the spaces they stand for. */
-  function pathGuestParams(){
-    var raw = "";
-    try { raw = window.location.pathname || ""; } catch (e) { return null; }
-    var rawSegs = raw.split("/"), segs = [];
+     invitation's own address. Returns a params object in the query
+     form's vocabulary — { to, side, jago } — or null when the path
+     is not a guest path. The page may also be served under the
+     /wedding-invitation/ subpath on the old host, so a leading
+     segment of that name is stripped first; a trailing index.html
+     is ignored. The shape is checked strictly — [name],
+     [name, nojago], [d|n|f, name], [d|n|f, name, nojago] and
+     nothing else — so an ordinary host path (the site root, a
+     multi-segment app route) never reads as a guest. Segments are
+     URL-decoded before use; the name's hyphens become the spaces
+     they stand for.
+     GitHub Pages has no page at a guest path, so the site's
+     404.html sends the browser back here with the path encoded in
+     the query — …/?/Guest-Name (any real query rides after it,
+     &-joined as ~and~). The <head> script restores the clean path
+     before this runs; should that restore ever be unavailable, the
+     same segments are read from the encoded query directly, so a
+     short link addresses its guest either way. */
+  function segsFromPathStr(raw){
+    var rawSegs = (raw || "").split("/"), segs = [];
     for (var i = 0; i < rawSegs.length; i++){
       if (!rawSegs[i]) continue;
       var seg = rawSegs[i];
       try { seg = decodeURIComponent(seg); } catch (e) {}
       segs.push(seg);
     }
+    return segs;
+  }
+  function guestFromSegs(segs){
     if (segs.length && segs[0].toLowerCase() === "wedding-invitation") segs.shift();
     if (segs.length && segs[segs.length - 1].toLowerCase() === "index.html") segs.pop();
     if (!segs.length || segs.length > 3) return null;
@@ -2286,6 +2328,18 @@ window.setTimeout(window.__dismissInviteLoader, 12000);
        path link is never overridden by query parameters riding
        along on the same address */
     return { to: nm, side: side, jago: nojago ? "0" : "1" };
+  }
+  function pathGuestParams(){
+    var raw = "";
+    try { raw = window.location.pathname || ""; } catch (e) { raw = ""; }
+    var found = guestFromSegs(segsFromPathStr(raw));
+    if (found) return found;
+    /* the 404-fallback arrival: the guest path rides in the query
+       as ?/… — read the same segments from there */
+    var qs = "";
+    try { qs = window.location.search || ""; } catch (e) { return null; }
+    if (qs.charAt(1) !== "/") return null;
+    return guestFromSegs(segsFromPathStr(qs.slice(1).split("&")[0]));
   }
   function gatherParams(){
     var merged = {};
