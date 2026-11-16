@@ -735,8 +735,9 @@ var FONT_FACES = [
   .gn-inner{
     /* the addressee line sits small in the envelope's bottom-right
        corner — "To" in little letterspaced capitals, then the name
-       in the gold hand — the way a real envelope is addressed. As
-       the envelope opens the engine fades it away (see nameK) */
+       in the gold hand — the way a real envelope is addressed. It
+       is engraved into the paper (see .gn-text), so it stays on
+       the envelope permanently, before and after the flap opens */
     position:absolute; right:5.5%; bottom:6.5%;
     display:flex; align-items:baseline; justify-content:flex-end; gap:.55em;
     white-space:nowrap; text-align:right;
@@ -744,15 +745,26 @@ var FONT_FACES = [
   .gn-to{
     font-family:"Cormorant Garamond","Noto Serif Gurmukhi",Georgia,serif;
     font-size:11px; font-weight:600; letter-spacing:.28em; text-transform:uppercase;
-    color:#5F4F2A; text-shadow:0 1px 0 rgba(255,248,220,.38);
+    color:#57492A;
+    /* pressed into the paper like the name it introduces: shade
+       inside the groove's top edge, one crisp pale line where the
+       light catches the groove's lower lip — no shine, no halo */
+    text-shadow:0 -1px 1px rgba(46,42,20,.25), 0 1px 0 rgba(255,252,240,.5);
   }
   .gn-text{
     /* inline-block, so the element's own width IS the text's width —
        the fit loop measures it to shrink long names onto one line;
        as a block its width was the box's, and every name "overflowed" */
     display:inline-block; white-space:nowrap; line-height:1.25;
-    color:#5F4F2A; /* v8 (item 12a/17a): deeper brown, in the card's own brown */
-    text-shadow:0 1px 2px rgba(255,250,238,.6), 0 2px 4px rgba(74,64,36,.25); /* v8 (item 12a): a soft shadow, so it reads at rest */
+    color:#57492A; /* a matte umber, in the card's own brown family */
+    /* ENGRAVED, not printed: the letters are pressed INTO the
+       envelope paper the way the flap's blind-embossed stamp is —
+       a soft shade along the groove's upper edge and one crisp
+       pale line along its lower lip, so the strokes read as
+       relief in the paper itself. The old bright blurred halo
+       and lifted drop shadow (the glare that made the name look
+       shiny and stuck-on) are gone. */
+    text-shadow:0 -1px 1px rgba(46,42,20,.30), 0 1px 0 rgba(255,252,240,.48);
   }
   /* English: Dancing Script — a full-bodied calligraphic hand
      whose strokes stay solid at envelope size. */
@@ -3050,9 +3062,9 @@ window.setTimeout(window.__dismissInviteLoader, 12000);
     calSecK = K([[0, 0], [0.85, 0], [0.93, 1], [1, 1]]);
     /* (the Events section has no fade keyframes: it rides the
        glide in fully opaque — see the render loop) */
-    /* the guest's name is written on the envelope, and an opened
-       envelope is no longer addressed: it fades as the flap lifts */
-    nameK  = K([[0, 1], [0.30, 0], [1, 0]]); /* v6 fix 4: the name stays on the closed envelope until the tap */
+    /* the guest's name is engraved on the envelope itself, so it
+       stays for good: opening the flap never takes it away */
+    nameK  = K([[0, 1], [1, 1]]);
   }
 
   /* Set the guest name once, in envelope-local pixels — small, as
